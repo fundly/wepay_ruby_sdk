@@ -35,7 +35,6 @@ class WePay
 	def call(call, access_token = false, params = false)
 		# get the url
 		url = URI.parse(@api_endpoint + call)
-		p url
 		# construct the call data and access token
 		call = Net::HTTP::Post.new(url.path, initheader = {'Content-Type' =>'application/json'})
 		if params
