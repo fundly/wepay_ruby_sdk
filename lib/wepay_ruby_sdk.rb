@@ -48,7 +48,7 @@ module WepayRubySdk
       # make the call
       response = request.start {|http| http.request(call) }
       # returns JSON response as ruby hash
-      JSON.parse(response.body)
+      JSON.parse(response.body).symbolize_keys
     end
     
     # this function returns the URL that you send the user to to authorize your API application
