@@ -48,9 +48,30 @@ module WepayRubySdk
       # make the call
       response = request.start {|http| http.request(call) }
       # returns JSON response as ruby hash
-      JSON.parse(response.body).symbolize_keys
+      symbolize_response(response.body)
     end
-    
+
+    def symbolize_response(response)
+      json = JSON.parse(response)
+      if json.kind_of? Hash
+        json.symbolize_keys! and raise_if_response_error(json)
+      elsif json.kind_of? Array
+        json.each{|h| h.symbolize_keys!}
+      end
+      json
+    end
+
+    def raise_if_response_error(json)
+      if json.has_key?(:error) && json.has_key?(:error_description)
+        if ['invalid code parameter','the code has expired','this access_token has been revoked', 'a valid access_token is required'].include?(json[:error_description])
+          raise WepayRails::Exceptions::ExpiredTokenError.new("Token either expired, revoked or invalid: #{json[:error_description]}")
+        else
+          raise WepayRails::Exceptions::WepayApiError.new(json[:error_description])
+        end
+      end
+    end
+
+
     # this function returns the URL that you send the user to to authorize your API application
     # the redirect_uri must be a full uri (ex https://www.wepay.com)
     def oauth2_authorize_url(redirect_uri, user_email = false, user_name = false, permissions = "manage_accounts,view_balance,collect_payments,refund_payments,view_user")
