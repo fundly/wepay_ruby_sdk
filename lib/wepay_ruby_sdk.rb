@@ -54,7 +54,8 @@ module WepayRubySdk
     def symbolize_response(response)
       json = JSON.parse(response)
       if json.kind_of? Hash
-        json.symbolize_keys! and raise_if_response_error(json)
+        # json.symbolize_keys! and raise_if_response_error(json)
+        json.symbolize_keys!
       elsif json.kind_of? Array
         json.each{|h| h.symbolize_keys!}
       end
